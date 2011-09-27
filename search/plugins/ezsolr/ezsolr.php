@@ -363,10 +363,11 @@ class eZSolr implements ezpSearchEngine
      *
      * @param eZContentObject $contentObject Object to add to search engine
      * @param bool $commit Whether to commit after adding the object.
-              If set, run optimize() as well every 1000nd time this function is run.
+     *        If set, run optimize() as well every 1000nd time this function is run.
+     * @param $commitWithin Commit within delay (see Solr documentation)
      * @return bool True if the operation succeed.
      */
-    function addObject( $contentObject, $commit = true )
+    function addObject( $contentObject, $commit = true, $commitWithin = 0 )
     {
         // Add all translations to the document list
         $docList = array();
@@ -584,8 +585,7 @@ class eZSolr implements ezpSearchEngine
         {
             $commit = false;
         }
-        $commitWithin = 0;
-        if ( $this->FindINI->variable( 'IndexOptions', 'CommitWithin' ) > 0 )
+        if ( $commitWithin === 0 && $this->FindINI->variable( 'IndexOptions', 'CommitWithin' ) > 0 )
         {
             $commitWithin = $this->FindINI->variable( 'IndexOptions', 'CommitWithin' );
         }
@@ -927,8 +927,9 @@ class eZSolr implements ezpSearchEngine
                     // can_read permission must be checked as they could be out of sync in Solr, however, when called from template with:
                     // limitation, hash( 'accessWord', ... ) this check should not be performed as it has precedence.
                     // See: http://issues.ez.no/15978
-                    if ( !isset( $params['Limitation'], $params['Limitation']['accessWord'] ) && !$resultTree->attribute( 'can_read' ) )
+                    if ( !isset( $params['Limitation'], $params['Limitation']['accessWord'] ) && !$resultTree->attribute( 'object' )->attribute( 'can_read' ) )
                     {
+                        $searchCount--;
                         eZDebug::writeNotice( 'Access denied for eZ Find result, node_id: ' . $nodeID, __METHOD__ );
                         continue;
                     }
@@ -1089,8 +1090,9 @@ class eZSolr implements ezpSearchEngine
                     // can_read permission must be checked as they could be out of sync in Solr, however, when called from template with:
                     // limitation, hash( 'accessWord', ... ) this check should not be performed as it has precedence.
                     // See: http://issues.ez.no/15978
-                    if ( !isset( $params['Limitation'], $params['Limitation']['accessWord'] ) && !$resultTree->attribute( 'can_read' ) )
+                    if ( !isset( $params['Limitation'], $params['Limitation']['accessWord'] ) && !$resultTree->attribute( 'object' )->attribute( 'can_read' ) )
                     {
+                        $searchCount--;
                         eZDebug::writeNotice( 'Access denied for eZ Find result, node_id: ' . $doc[ezfSolrDocumentFieldBase::generateMetaFieldName( 'main_node_id' )], __METHOD__ );
                         continue;
                     }
@@ -1305,7 +1307,7 @@ class eZSolr implements ezpSearchEngine
      */
     static function engineText()
     {
-        return ezpI18n::tr( 'ezfind', 'eZ Find 2.3 search plugin &copy; 1999-2011 eZ Systems AS, powered by Apache Solr 1.5-dev' );
+        return ezpI18n::tr( 'ezfind', 'eZ Find 2.5 search plugin &copy; 1999-2011 eZ Systems AS, powered by Apache Solr 3.1' );
     }
 
     /**
@@ -1340,6 +1342,27 @@ class eZSolr implements ezpSearchEngine
     {
         $contentObject = eZContentObject::fetchByNodeID( $nodeID );
         $this->addObject( $contentObject );
+    }
+
+    /**
+     * Update the section in the search engine
+     *
+     * @param array $objectID
+     * @param int $sectionID
+     * @return void
+     * @see eZSearch::updateObjectsSection()
+     */
+    public function updateObjectsSection( array $objectIDs, $sectionID )
+    {
+        foreach( $objectIDs as $id )
+        {
+            $object = eZContentObject::fetch( $id );
+            // we may be inside a DB transaction running update queries for the
+            // section id or the content object may come from the memory cache
+            // make sure the section_id is the right one
+            $object->setAttribute( 'section_id', $sectionID );
+            $this->addObject( $object );
+        }
     }
 
     /**
