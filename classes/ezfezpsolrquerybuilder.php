@@ -165,6 +165,7 @@ class ezfeZPSolrQueryBuilder
         $distributedSearch = isset( $params['DistributedSearch'] ) ? $params['DistributedSearch'] : false;
         $fieldsToReturn = isset( $params['FieldsToReturn'] ) ? $params['FieldsToReturn'] : array();
         $highlightParams = isset( $params['HighLightParams'] ) ? $params['HighLightParams'] : array();
+        $extendedAttributeFilter = isset( $params['ExtendedAttributeFilter'] ) ? $params['ExtendedAttributeFilter'] : array();
 
 
         // distributed search option
@@ -483,6 +484,27 @@ class ezfeZPSolrQueryBuilder
             $boostFunctionsParamList,
             $elevateParamList
         );
+
+
+        if( isset( $extendedAttributeFilter['id'] ) && isset( $extendedAttributeFilter['params'] ) )
+        {
+            //single filter
+            $extendedAttributeFilter = array( $extendedAttributeFilter );
+        }
+
+        foreach( $extendedAttributeFilter as $filterDefinition )
+        {
+            if( isset( $filterDefinition['id'] ) )
+            {
+                $filter = eZFindExtendedAttributeFilter::getInstance( $filterDefinition['id'] );
+                if( $filter )
+                {
+                    $filterParams = isset( $filterDefinition['params'] ) ? $filterDefinition['params'] : array();
+                    $queryParams = $filter->filterQueryParams( $queryParams, $filterParams );
+                }
+            }
+        }
+
         return $queryParams;
     }
 

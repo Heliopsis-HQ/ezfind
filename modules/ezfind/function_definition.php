@@ -115,7 +115,11 @@ $FunctionList['search'] = array( 'name' => 'search',
                                                         array ( 'name'  => 'fields_to_return',
                                                                 'type' => 'array',
                                                                 'required' => false,
-                                                                'default' => null )) );
+                                                                'default' => null ),
+                                                        array ( 'name'  => 'extended_attribute_filter',
+                                                                'type' => 'array',
+                                                                'required' => false,
+                                                                'default' => array() )) );
 
 
 $FunctionList['getDefaultSearchFacets'] = array( 'name' => 'getDefaultSearchFacets',
