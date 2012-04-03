@@ -106,8 +106,7 @@ class ezfModuleFunctionCollection
     public function search( $query, $offset = 0, $limit = 10, $facets = null,
                             $filters = null, $sortBy = null, $classID = null, $sectionID = null,
                             $subtreeArray = null, $ignoreVisibility = false, $limitation = null, $asObjects = true, $spellCheck = null, $boostFunctions = null, $queryHandler = 'ezpublish',
-                            $enableElevation = true, $forceElevation = false, $publishDate = null, $distributedSearch = null, $fieldsToReturn = null,
-                                  $customQueryParams = null )
+                            $enableElevation = true, $forceElevation = false, $publishDate = null, $distributedSearch = null, $fieldsToReturn = null )
     {
         $solrSearch = new eZSolr();
         $params = array( 'SearchOffset' => $offset,
@@ -128,8 +127,7 @@ class ezfModuleFunctionCollection
                          'ForceElevation' => $forceElevation,
                          'SearchDate' => $publishDate,
                          'DistributedSearch' => $distributedSearch,
-                         'FieldsToReturn' => $fieldsToReturn,
-                         'CustomQueryParams' => $customQueryParams );
+                         'FieldsToReturn' => $fieldsToReturn );
         return array( 'result' => $solrSearch->search( $query, $params ) );
     }
 
@@ -172,8 +170,7 @@ class ezfModuleFunctionCollection
      */
     public function moreLikeThis( $queryType, $query, $offset = 0, $limit = 10, $facets = null,
                                   $filters = null, $sortBy = null, $classID = null, $sectionID = null,
-                                  $subtreeArray = null, $asObjects = true, $queryInstallationID = null,
-                                  $customQueryParams = null )
+                                  $subtreeArray = null, $asObjects = true, $queryInstallationID = null )
 
     {
         $solrSearch = new eZSolr();
@@ -186,8 +183,7 @@ class ezfModuleFunctionCollection
                          'SearchSectionID' => $sectionID,
                          'SearchSubTreeArray' => $subtreeArray,
                          'QueryInstallationID' => $queryInstallationID,
-                         'AsObjects' => $asObjects,
-                         'CustomQueryParams' => $customQueryParams );
+                         'AsObjects' => $asObjects);
         return array( 'result' => $solrSearch->moreLikeThis( $queryType, $query, $params ) );
 
 
