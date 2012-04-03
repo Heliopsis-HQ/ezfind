@@ -429,8 +429,6 @@ class eZSolr implements ezpSearchEngine
             $anonymousAccess = 'false';
         }
 
-        $customClassAttributes = $this->FindINI->variable( 'CustomIndexingSettings', 'CustomClassAttributes' );
-
         // Load index time boost factors if any
         //$boostMetaFields = $this->FindINI->variable( "IndexBoost", "MetaField" );
         $boostClasses = $this->FindINI->variable( 'IndexBoost', 'Class' );
@@ -572,16 +570,6 @@ class eZSolr implements ezpSearchEngine
                     $doc->addField( $storageFieldName, ezfSolrStorage::serializeData( $attributeData ) );
                 }
             }
-
-            if( isset( $customClassAttributes[$contentClassIdentifier] ) )
-            {
-                $handler = eZFindCustomClassAttributes::getInstance( $customClassAttributes[$contentClassIdentifier] );
-                if( $handler )
-                {
-                    $handler->setCustomFields( $doc, $contentObject );
-                }
-            }
-
             eZContentObject::recursionProtectionEnd();
 
             if ( $doAttributeStorage )
