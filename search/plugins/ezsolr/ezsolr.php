@@ -580,6 +580,39 @@ class eZSolr implements ezpSearchEngine
             $docList[$languageCode] = $doc;
         }
 
+        // Since eZFind 2.7: indexhooks
+        $generalPlugins = $this->FindINI->variable( 'IndexPlugins', 'General' );
+        $classPlugins   = $this->FindINI->variable( 'IndexPlugins', 'Class' );
+        if ( !empty( $generalPlugins ) )
+        {
+            foreach ( $generalPlugins as $pluginClassString )
+            {
+                if( !class_exists( $pluginClassString ) )
+                {
+                    eZDebug::writeError( "Unable to find the PHP class '$classname' defined for index time plugins for eZ Find", __METHOD__ );
+                    continue;
+                }
+                $plugin = new $pluginClassString;
+                if ( $plugin instanceof ezfIndexPlugin )
+                {
+                    $plugin->modify( $contentObject, $docList );
+                }
+            }
+        }
+
+        if (array_key_exists($contentObject->attribute( 'class_identifier' ), $classPlugins ) )
+        {
+            $pluginClassString = $classPlugins[$contentObject->attribute( 'class_identifier' )];
+            if ( class_exists( $pluginClassString ) )
+            {
+                $plugin = new $pluginClassString;
+                if ($plugin instanceof ezfIndexPlugin)
+                {
+                        $plugin->modify( $contentObject, $docList );
+                }
+            }
+        }
+
         $optimize = false;
         if ( $this->FindINI->variable( 'IndexOptions', 'DisableDirectCommits' ) === 'true' )
         {
