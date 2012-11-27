@@ -980,7 +980,16 @@ class eZSolr implements ezpSearchEngine
                     $emit = array();
                     foreach ( $doc as $fieldName => $fieldValue )
                     {
-                        list($prefix, $rest) = explode ('_', $fieldName, 2);
+                        if( strpos( $fieldName, '_' ) )
+                        {
+                            list($prefix, $rest) = explode ('_', $fieldName, 2);
+                        }
+                        else
+                        {
+                            $prefix = '';
+                            $rest = $fieldName;
+                        }
+
                         // get the identifier for meta, binary fields
                         $inner = implode('_', explode('_', $rest, -1));
 
