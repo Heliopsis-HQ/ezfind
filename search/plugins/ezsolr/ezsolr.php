@@ -908,6 +908,25 @@ class eZSolr implements ezpSearchEngine
     }
 
     /**
+     * Removes a content object by Id from the search database.
+     *
+     * @since 5.0
+     * @param int $contentObjectId The content object to remove by id
+     * @param bool $commit Whether to commit after removing the object
+     * @return bool True if the operation succeed.
+     */
+    public function removeObjectById( $contentObjectId, $commit = true )
+    {
+        $contentObject = eZContentObject::fetch( $contentObjectId );
+        if( $contentObject instanceof eZContentObject )
+        {
+            return $this->removeObject( $contentObject, $commit );
+        }
+
+        return false;
+    }
+
+    /**
      * Search on the Solr search server
      * @todo: add functionality not to call the DB to recreate objects : $asObjects == false
      *
